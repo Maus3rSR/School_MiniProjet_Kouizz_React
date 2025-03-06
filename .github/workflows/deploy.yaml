@@ -35,6 +35,9 @@ jobs:
 
       - name: Build project
         run: pnpm run build
+        env:
+          NODE_ENV: production
+          VITE_QUIZZ_API_URL: https://quizzapi.jomoreschi.fr/api
 
         # Cette étape va créer un "output" qui contient l'url du projet sur github pages
         # Ce qui permet d'être récupéré par le job de déploiement
