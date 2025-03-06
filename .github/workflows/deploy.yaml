@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [solution]
+  workflow_dispatch:
+
+jobs:
+  # Job dont l'objectif est de créer les fichiers de production du projet
+  build:
+    runs-on: ubuntu-latest
+    # 1. Récupère le projet
+    # 2. Installe NodeJS sur la machine
+    # 3. Installe pnpm (on pourrait accélérer significativement les builds en mettant en cache le store de pnpm)
+    # 4. Installe les dépendances du projet
+    # 5. Création des fichiers de production (qui va être mis dans un dossier dist)
+    # 6. Télécharge les fichiers en ligne en tant qu'artefact pour Github Pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+        # Cette étape va créer un "output" qui contient l'url du projet sur github pages
+        # Ce qui permet d'être récupéré par le job de déploiement
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  # Job dont l'objectif est de déployer les fichiers de production sur github pages
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      # Ici on récupère l'output du job de build, fournis par l'étape upload artifact
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
