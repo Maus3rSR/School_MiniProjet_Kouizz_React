@@ -2,34 +2,52 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 
 import "./Game.css";
+
+import { useDependencies } from "../context/DependenciesProvider";
+import { useNickname } from "../context/NicknameProvider";
+
 import { type Quizz } from "../modules/quizz/model";
 import Answer from "../modules/quizz/components/Answer";
 import useQuizz from "../modules/quizz/useQuizz";
 import Difficulty from "../modules/quizz/components/Difficulty";
 import EndQuizz from "../modules/quizz/components/EndQuizz";
-import { useDependencies } from "../components/DependenciesProvider";
 import { QuestionCounter } from "../modules/quizz/components/QuestionCounter";
 
 export default function Game() {
   const { quizzDatasource } = useDependencies();
+  const { nickName } = useNickname();
   const [quizz, updateQuizz] = useState<Quizz>();
   const [seed, updateSeed] = useState(0);
 
   useEffect(() => {
-    const loadQuizz = () => {
-      quizzDatasource
-        .fetch()
-        .then((quizz) => updateQuizz(quizz))
-        .catch((error) => console.error(error));
-    };
-
-    loadQuizz();
+    quizzDatasource
+      .fetch()
+      .then((quizz) => updateQuizz(quizz))
+      .catch((error) => console.error(error));
   }, [quizzDatasource, seed]);
 
+  if (!nickName)
+    return (
+      <div>
+        Il vous faut un pseudo pour pouvoir jouer !
+        <NavLink className="btn btn-primary" to="/">
+          Retour à l'accueil
+        </NavLink>
+      </div>
+    );
   if (!quizz) return <div>Chargement du Quizz...</div>;
 
   return (
-    <Quizz key={seed} data={quizz} onReplay={() => updateSeed(Math.random())} />
+    <>
+      <div className="text-2xl font-bold mb-4">
+        {nickName}, tu vas tout déchirer 🔥
+      </div>
+      <Quizz
+        key={seed}
+        data={quizz}
+        onReplay={() => updateSeed(Math.random())}
+      />
+    </>
   );
 }
 

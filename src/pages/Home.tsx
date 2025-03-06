@@ -1,7 +1,27 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
+import { useNickname } from "../context/NicknameProvider";
+import { useDependencies } from "../context/DependenciesProvider";
+
+import { GameHistory } from "../modules/game/model";
+
 function Home() {
+  const { gameHistoryDatasource } = useDependencies();
+  const { nickName, updateNickName } = useNickname();
   const navigate = useNavigate();
+  const [history, updateGameHistory] = useState<GameHistory[]>([]);
+
+  const sortedHistory = [...history].sort(
+    (a, b) => b.date.getTime() - a.date.getTime()
+  );
+
+  useEffect(() => {
+    gameHistoryDatasource
+      .fetch()
+      .then(updateGameHistory)
+      .catch((error) => console.error(error));
+  }, [gameHistoryDatasource, updateNickName]);
 
   return (
     <div>
@@ -19,21 +39,23 @@ function Home() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <th>Mario Bros</th>
-              <td>6/10</td>
-              <td>03/02/2025 à 16h30</td>
-            </tr>
-            <tr>
-              <th>Sarah Pixel</th>
-              <td>8/10</td>
-              <td>03/02/2025 à 14h22</td>
-            </tr>
-            <tr>
-              <th>John Doe</th>
-              <td>5/10</td>
-              <td>03/02/2025 à 13h45</td>
-            </tr>
+            {sortedHistory.map((gameHistory) => (
+              <tr key={gameHistory.id}>
+                <td>{gameHistory.player}</td>
+                <td>
+                  {gameHistory.score.good} / {gameHistory.score.total}
+                </td>
+                <td>
+                  {gameHistory.date.toLocaleDateString("fr-FR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -48,6 +70,8 @@ function Home() {
         <input
           className="input input-bordered join-item"
           placeholder="Ton pseudo"
+          value={nickName}
+          onChange={(e) => updateNickName(e.target.value)}
         />
         <button className="btn btn-primary join-item rounded-r-full">
           Jouer une partie
