@@ -14,6 +14,5 @@ export type Answer = {
 };
 
 export type Quizz = {
-  id: string;
   questions: Question[];
 };

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 
 import "./Game.css";
@@ -6,62 +7,78 @@ import Difficulty from "../modules/quizz/components/Difficulty";
 import Answer from "../modules/quizz/components/Answer";
 import useQuizz from "../modules/quizz/useQuizz";
 
-const quizz: Quizz = {
-  id: "kiki",
-  questions: [
-    {
-      id: "1",
-      text: "Bibi bubu ?",
-      difficulty: "easy",
-      answers: [
-        {
-          id: "bobo",
-          isCorrect: false,
-          text: "Bobo",
-        },
-        {
-          id: "bibi",
-          isCorrect: true,
-          text: "Bibi",
-        },
-        {
-          id: "baba",
-          isCorrect: false,
-          text: "Baba",
-        },
-      ],
-    },
-    {
-      id: "2",
-      text: "BWAAAAAAAAH ?",
-      difficulty: "hard",
-      answers: [
-        {
-          id: "bobo2",
-          isCorrect: false,
-          text: "BWOOOOOOH",
-        },
-        {
-          id: "bibi2",
-          isCorrect: false,
-          text: "BWUUUUUUUUUH",
-        },
-        {
-          id: "baba2",
-          isCorrect: false,
-          text: "Baba",
-        },
-        {
-          id: "bubu2",
-          isCorrect: true,
-          text: "BWEEEEEEEEEH",
-        },
-      ],
-    },
-  ],
-};
-
 export default function Game() {
+  const [quizz, updateQuizz] = useState<Quizz>();
+
+  useEffect(() => {
+    const loadQuizz = () => {
+      fetch(
+        "https://quizzapi.jomoreschi.fr/api/v1/quiz?limit=10&category=jeux_videos"
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          updateQuizz({
+            questions: [
+              {
+                id: "1",
+                text: "Bibi bubu ?",
+                difficulty: "easy",
+                answers: [
+                  {
+                    id: "bobo",
+                    isCorrect: false,
+                    text: "Bobo",
+                  },
+                  {
+                    id: "bibi",
+                    isCorrect: true,
+                    text: "Bibi",
+                  },
+                  {
+                    id: "baba",
+                    isCorrect: false,
+                    text: "Baba",
+                  },
+                ],
+              },
+              {
+                id: "2",
+                text: "BWAAAAAAAAH ?",
+                difficulty: "hard",
+                answers: [
+                  {
+                    id: "bobo2",
+                    isCorrect: false,
+                    text: "BWOOOOOOH",
+                  },
+                  {
+                    id: "bibi2",
+                    isCorrect: false,
+                    text: "BWUUUUUUUUUH",
+                  },
+                  {
+                    id: "baba2",
+                    isCorrect: false,
+                    text: "Baba",
+                  },
+                  {
+                    id: "bubu2",
+                    isCorrect: true,
+                    text: "BWEEEEEEEEEH",
+                  },
+                ],
+              },
+            ],
+          });
+        });
+    };
+
+    loadQuizz();
+  }, []);
+
+  if (!quizz) return <div>Aucune question... :(</div>;
+
   const {
     questionNumber,
     question,

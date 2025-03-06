@@ -6,6 +6,16 @@ export type QuestionViewModel = Omit<Question, "answers">;
 export type AnswerViewModel = Pick<Answer, "id" | "text"> & {
   state: AnswerState;
 };
+export type QuizzHookProps = {
+  questionNumber: number;
+  question: QuestionViewModel;
+  answers: AnswerViewModel[];
+  isLastQuestion: boolean;
+  questionAnswered: boolean;
+  goodAnswerCount: number;
+  nextQuestion: () => void;
+  chooseAnswer: (id: string) => void;
+};
 
 function mapAnswerViewModel(answer: Answer): AnswerViewModel {
   return {
