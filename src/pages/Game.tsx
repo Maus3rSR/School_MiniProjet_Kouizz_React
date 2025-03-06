@@ -1,78 +1,131 @@
 import { NavLink } from "react-router";
+
 import "./Game.css";
+import { type Quizz } from "../modules/quizz/model";
+import Difficulty from "../modules/quizz/components/Difficulty";
+import Answer from "../modules/quizz/components/Answer";
+import useQuizz from "../modules/quizz/useQuizz";
 
-type Difficulty = "easy" | "medium" | "hard";
-
-type Question = {
-  text: string;
-  difficulty: Difficulty;
-  answers: Answer[];
-};
-
-type Answer = {
-  text: string;
-  isCorrect: boolean;
-};
-
-type Quizz = {
-  questions: Question[];
-  goodAnswersCount: number;
+const quizz: Quizz = {
+  id: "kiki",
+  questions: [
+    {
+      id: "1",
+      text: "Bibi bubu ?",
+      difficulty: "easy",
+      answers: [
+        {
+          id: "bobo",
+          isCorrect: false,
+          text: "Bobo",
+        },
+        {
+          id: "bibi",
+          isCorrect: true,
+          text: "Bibi",
+        },
+        {
+          id: "baba",
+          isCorrect: false,
+          text: "Baba",
+        },
+      ],
+    },
+    {
+      id: "2",
+      text: "BWAAAAAAAAH ?",
+      difficulty: "hard",
+      answers: [
+        {
+          id: "bobo2",
+          isCorrect: false,
+          text: "BWOOOOOOH",
+        },
+        {
+          id: "bibi2",
+          isCorrect: false,
+          text: "BWUUUUUUUUUH",
+        },
+        {
+          id: "baba2",
+          isCorrect: false,
+          text: "Baba",
+        },
+        {
+          id: "bubu2",
+          isCorrect: true,
+          text: "BWEEEEEEEEEH",
+        },
+      ],
+    },
+  ],
 };
 
 export default function Game() {
+  const {
+    questionNumber,
+    question,
+    answers,
+    questionAnswered,
+    goodAnswerCount,
+    isLastQuestion,
+    nextQuestion,
+    chooseAnswer,
+  } = useQuizz(quizz.questions);
+
+  const totalQuestion = quizz.questions.length;
+  const showNextQuestionBtn = questionAnswered && !isLastQuestion;
+  const isEndOfQuizz = questionAnswered && isLastQuestion;
+
   return (
     <>
       <h2 className="font-bold text-2xl mb-4">
-        Question <span className="badge badge-accent badge-lg">1 / 10</span>
+        Question &nbsp;
+        <span className="badge badge-accent badge-lg">
+          {questionNumber} / {totalQuestion}
+        </span>
       </h2>
-      <h3 className="font-bold mb-4">
-        Qui est le compositeur du thème principal de Tetris, Korobeïniki ?
-      </h3>
+      <h3 className="font-bold mb-4">{question.text}</h3>
 
-      <div className="badge badge-primary badge-lg mb-4">Facile 🐤</div>
-      <div className="badge badge-primary badge-lg mb-4">Moyen 💪</div>
-      <div className="badge badge-primary badge-lg mb-4">Difficile 💀</div>
+      <Difficulty level={question.difficulty} />
 
       <div className="grid grid-cols-2 gap-4 quizz--answers">
-        <div className="card bg-neutral text-neutral-content max-w-sm">
-          <div className="card-body items-center text-center">
-            Piotr Tchaïkovski
-          </div>
-        </div>
-        <div className="card bg-success text-success-content max-w-sm">
-          <div className="card-body items-center text-center">
-            Nikolaï Nekrassov
-          </div>
-        </div>
-        <div className="card bg-error text-error-content max-w-sm">
-          <div className="card-body items-center text-center">
-            Alexandre Nikolaïevitch Skriabin
-          </div>
-        </div>
-        <div className="card bg-neutral text-neutral-content max-w-sm">
-          <div className="card-body items-center text-center">
-            Hirokazu Tanaka
-          </div>
-        </div>
+        {answers.map((answer) => (
+          <Answer
+            key={answer.id}
+            id={answer.id}
+            text={answer.text}
+            state={answer.state}
+            onAnswerChoosed={chooseAnswer}
+          />
+        ))}
       </div>
 
-      <div className="flex justify-center mt-8">
-        <button className="btn btn-primary">Prochaine question</button>
-      </div>
-
-      <div className="flex flex-col gap-2 mt-8 justify-center items-center align-center">
-        <div>
-          Fin du quizz ! Bonnes réponses :&nbsp;
-          <span className="badge badge-primary badge-lg">0 / 10</span>
+      {showNextQuestionBtn && (
+        <div className="flex justify-center mt-8">
+          <button className="btn btn-primary" onClick={nextQuestion}>
+            Prochaine question
+          </button>
         </div>
+      )}
 
-        <div className="flex gap-2">
-          <button className="btn btn-primary">Rejouer</button>
-          <NavLink className="btn btn-secondary" to="/" end>
-            Revenir à la page d'accueil
-          </NavLink>
+      {isEndOfQuizz && (
+        <div className="flex flex-col gap-2 mt-8 justify-center items-center align-center">
+          <div>
+            Fin du quizz ! Bonnes réponses :&nbsp;
+            <span className="badge badge-primary badge-lg">
+              {goodAnswerCount} / {totalQuestion}
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            <button className="btn btn-primary">Rejouer</button>
+            <NavLink className="btn btn-secondary" to="/" end>
+              Revenir à la page d'accueil
+            </NavLink>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
