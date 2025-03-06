@@ -7,13 +7,16 @@ import DefaultLayout from "./layouts/Default";
 import { useState } from "react";
 import { NicknameContext } from "./context/NicknameProvider";
 
+// Github Pages base url - On doit configurer le base url de l'application pour le router de React
+const BASE_URL = import.meta.env.PROD ? import.meta.env.BASE_URL : "";
+
 export default function App() {
   const [nickName, updateNickName] = useState("");
 
   return (
     <NicknameContext.Provider value={{ nickName, updateNickName }}>
       <DependenciesContext.Provider value={dependencies}>
-        <BrowserRouter>
+        <BrowserRouter basename={BASE_URL}>
           <Routes>
             <Route element={<DefaultLayout />}>
               <Route index element={<Home />} />
