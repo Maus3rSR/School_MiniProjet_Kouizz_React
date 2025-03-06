@@ -14,11 +14,15 @@ export default function Answer({
   onAnswerChoosed,
 }: Props) {
   const colorClass =
-    state === "neutral" ? "neutral" : state === "right" ? "success" : "error";
+    state === "neutral"
+      ? "bg-neutral text-neutral-content"
+      : state === "right"
+      ? "bg-success text-success-content"
+      : "bg-error text-error-content";
 
   return (
     <div
-      className={`card max-w-sm bg-${colorClass} text-${colorClass}-content`}
+      className={`card max-w-sm ${colorClass}`}
       onClick={() => onAnswerChoosed(id)}
     >
       <div className="card-body items-center text-center">{text}</div>

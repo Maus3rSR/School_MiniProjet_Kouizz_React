@@ -2,13 +2,25 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 
 import "./Game.css";
-import { type Quizz } from "../modules/quizz/model";
-import Difficulty from "../modules/quizz/components/Difficulty";
+import {
+  type Answer as AnswerType,
+  type Difficulty as DifficultyType,
+  type Quizz,
+} from "../modules/quizz/model";
 import Answer from "../modules/quizz/components/Answer";
 import useQuizz from "../modules/quizz/useQuizz";
+import Difficulty from "../modules/quizz/components/Difficulty";
+import { shuffleArray } from "../lib/random";
+import EndQuizz from "../modules/quizz/components/EndQuizz";
 
 export default function Game() {
   const [quizz, updateQuizz] = useState<Quizz>();
+
+  const difficultyMap: Record<string, DifficultyType> = {
+    facile: "easy",
+    normal: "medium",
+    difficile: "hard",
+  };
 
   useEffect(() => {
     const loadQuizz = () => {
@@ -16,69 +28,44 @@ export default function Game() {
         "https://quizzapi.jomoreschi.fr/api/v1/quiz?limit=10&category=jeux_videos"
       )
         .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          updateQuizz({
-            questions: [
-              {
-                id: "1",
-                text: "Bibi bubu ?",
-                difficulty: "easy",
-                answers: [
-                  {
-                    id: "bobo",
-                    isCorrect: false,
-                    text: "Bobo",
-                  },
-                  {
-                    id: "bibi",
-                    isCorrect: true,
-                    text: "Bibi",
-                  },
-                  {
-                    id: "baba",
-                    isCorrect: false,
-                    text: "Baba",
-                  },
-                ],
-              },
-              {
-                id: "2",
-                text: "BWAAAAAAAAH ?",
-                difficulty: "hard",
-                answers: [
-                  {
-                    id: "bobo2",
-                    isCorrect: false,
-                    text: "BWOOOOOOH",
-                  },
-                  {
-                    id: "bibi2",
-                    isCorrect: false,
-                    text: "BWUUUUUUUUUH",
-                  },
-                  {
-                    id: "baba2",
-                    isCorrect: false,
-                    text: "Baba",
-                  },
-                  {
-                    id: "bubu2",
-                    isCorrect: true,
-                    text: "BWEEEEEEEEEH",
-                  },
-                ],
-              },
-            ],
-          });
-        });
+        .then(
+          (data: {
+            quizzes: Array<{
+              _id: string;
+              answer: string;
+              badAnswers: Array<string>;
+              category: string;
+              difficulty: string;
+              question: string;
+            }>;
+          }) => {
+            updateQuizz({
+              questions: data.quizzes.map((q) => ({
+                id: q._id,
+                text: q.question,
+                answers: shuffleArray(
+                  [q.answer, ...q.badAnswers].map<AnswerType>((a, index) => ({
+                    id: (index + 1).toString(),
+                    text: a,
+                    isCorrect: index === 0,
+                  }))
+                ),
+                difficulty: difficultyMap[q.difficulty],
+              })),
+            });
+          }
+        );
     };
 
     loadQuizz();
   }, []);
 
-  if (!quizz) return <div>Aucune question... :(</div>;
+  if (!quizz) return <div>Chargement du Quizz...</div>;
 
+  return <Quizz data={quizz} />;
+}
+
+function Quizz({ data }: { data: Quizz }) {
   const {
     questionNumber,
     question,
@@ -88,9 +75,9 @@ export default function Game() {
     isLastQuestion,
     nextQuestion,
     chooseAnswer,
-  } = useQuizz(quizz.questions);
+  } = useQuizz(data.questions);
 
-  const totalQuestion = quizz.questions.length;
+  const totalQuestion = data.questions.length;
   const showNextQuestionBtn = questionAnswered && !isLastQuestion;
   const isEndOfQuizz = questionAnswered && isLastQuestion;
 
@@ -128,12 +115,10 @@ export default function Game() {
 
       {isEndOfQuizz && (
         <div className="flex flex-col gap-2 mt-8 justify-center items-center align-center">
-          <div>
-            Fin du quizz ! Bonnes réponses :&nbsp;
-            <span className="badge badge-primary badge-lg">
-              {goodAnswerCount} / {totalQuestion}
-            </span>
-          </div>
+          <EndQuizz
+            goodAnswerCount={goodAnswerCount}
+            totalQuestion={totalQuestion}
+          />
 
           <div className="flex gap-2">
             <button className="btn btn-primary">Rejouer</button>
