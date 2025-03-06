@@ -6,7 +6,7 @@ export type QuestionViewModel = Omit<Question, "answers">;
 export type AnswerViewModel = Pick<Answer, "id" | "text"> & {
   state: AnswerState;
 };
-export type QuizzHookProps = {
+export type QuizzState = {
   questionNumber: number;
   question: QuestionViewModel;
   answers: AnswerViewModel[];
@@ -40,16 +40,7 @@ function shouldDisplayAnswerAsWrong(
   return !foundRightAnswer && answer.id === answerChoosedId;
 }
 
-export default function useQuizz(questions: Question[]): {
-  questionNumber: number;
-  question: QuestionViewModel;
-  answers: AnswerViewModel[];
-  isLastQuestion: boolean;
-  questionAnswered: boolean;
-  goodAnswerCount: number;
-  nextQuestion: () => void;
-  chooseAnswer: (id: string) => void;
-} {
+export default function useQuizz(questions: Question[]): QuizzState {
   const [questionIndex, updateCurrentQuestionIndex] = useState(0);
   const [goodAnswerCount, updateGoodAnswerCount] = useState(0);
   const question = questions[questionIndex];

@@ -3,6 +3,7 @@ import { Dependencies } from "../config/dependencies";
 
 const DependenciesContext = createContext<Dependencies>({} as Dependencies);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDependencies() {
   return useContext(DependenciesContext);
 }

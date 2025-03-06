@@ -8,28 +8,32 @@ import useQuizz from "../modules/quizz/useQuizz";
 import Difficulty from "../modules/quizz/components/Difficulty";
 import EndQuizz from "../modules/quizz/components/EndQuizz";
 import { useDependencies } from "../components/DependenciesProvider";
+import { QuestionCounter } from "../modules/quizz/components/QuestionCounter";
 
 export default function Game() {
   const { quizzDatasource } = useDependencies();
   const [quizz, updateQuizz] = useState<Quizz>();
+  const [seed, updateSeed] = useState(0);
 
   useEffect(() => {
     const loadQuizz = () => {
       quizzDatasource
         .fetch()
-        .then((data) => updateQuizz(data))
+        .then((quizz) => updateQuizz(quizz))
         .catch((error) => console.error(error));
     };
 
     loadQuizz();
-  }, [quizzDatasource]);
+  }, [quizzDatasource, seed]);
 
   if (!quizz) return <div>Chargement du Quizz...</div>;
 
-  return <Quizz data={quizz} />;
+  return (
+    <Quizz key={seed} data={quizz} onReplay={() => updateSeed(Math.random())} />
+  );
 }
 
-function Quizz({ data }: { data: Quizz }) {
+function Quizz({ data, onReplay }: { data: Quizz; onReplay: () => void }) {
   const {
     questionNumber,
     question,
@@ -48,11 +52,9 @@ function Quizz({ data }: { data: Quizz }) {
   return (
     <>
       <h2 className="font-bold text-2xl mb-4">
-        Question &nbsp;
-        <span className="badge badge-accent badge-lg">
-          {questionNumber} / {totalQuestion}
-        </span>
+        <QuestionCounter current={questionNumber} total={totalQuestion} />
       </h2>
+
       <h3 className="font-bold mb-4">{question.text}</h3>
 
       <Difficulty level={question.difficulty} />
@@ -85,7 +87,9 @@ function Quizz({ data }: { data: Quizz }) {
           />
 
           <div className="flex gap-2">
-            <button className="btn btn-primary">Rejouer</button>
+            <button className="btn btn-primary" onClick={onReplay}>
+              Rejouer
+            </button>
             <NavLink className="btn btn-secondary" to="/" end>
               Revenir à la page d'accueil
             </NavLink>
