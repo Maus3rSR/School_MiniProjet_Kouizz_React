@@ -35,7 +35,12 @@ export const inMemoryGameHistoryDatasource: GameHistoryDataSource = {
   async fetch(): Promise<GameHistory[]> {
     return gameHistory;
   },
-  async add(history: GameHistory): Promise<void> {
-    gameHistory.push(history);
+
+  async add(history: Omit<GameHistory, "id" | "date">): Promise<void> {
+    gameHistory.push({
+      ...history,
+      id: (gameHistory.length + 1).toString(),
+      date: new Date(),
+    });
   },
 };

@@ -52,6 +52,8 @@ export default function Game() {
 }
 
 function Quizz({ data, onReplay }: { data: Quizz; onReplay: () => void }) {
+  const { gameHistoryDatasource } = useDependencies();
+  const { nickName } = useNickname();
   const {
     questionNumber,
     question,
@@ -66,6 +68,15 @@ function Quizz({ data, onReplay }: { data: Quizz; onReplay: () => void }) {
   const totalQuestion = data.questions.length;
   const showNextQuestionBtn = questionAnswered && !isLastQuestion;
   const isEndOfQuizz = questionAnswered && isLastQuestion;
+
+  if (isEndOfQuizz)
+    gameHistoryDatasource.add({
+      player: nickName,
+      score: {
+        good: goodAnswerCount,
+        total: totalQuestion,
+      },
+    });
 
   return (
     <>

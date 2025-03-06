@@ -2,7 +2,7 @@ import { GameHistory } from "../model";
 
 export type GameHistoryDataSource = {
   fetch(): Promise<GameHistory[]>;
-  add(history: GameHistory): Promise<void>;
+  add(history: Omit<GameHistory, "id" | "date">): Promise<void>;
 };
 
 export type PlayerDataSource = {
