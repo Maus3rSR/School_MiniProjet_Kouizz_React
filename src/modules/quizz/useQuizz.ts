@@ -85,7 +85,7 @@ export default function useQuizz(questions: Question[]): {
     isLastQuestion,
     questionAnswered,
     goodAnswerCount,
-    nextQuestion: nextQuestion,
+    nextQuestion,
     chooseAnswer,
   };
 }
