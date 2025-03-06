@@ -7,6 +7,7 @@ import DefaultLayout from "./layouts/Default";
 import { useState } from "react";
 import { NicknameContext } from "./context/NicknameProvider";
 
+console.log(import.meta.env.PROD);
 // Github Pages base url - On doit configurer le base url de l'application pour le router de React
 const BASE_URL = import.meta.env.PROD ? import.meta.env.BASE_URL : "";
 
