@@ -37,7 +37,7 @@ jobs:
         run: pnpm run build
         env:
           NODE_ENV: production
-          VITE_QUIZZ_API_URL: ${{ env.QUIZZ_API_URL }}
+          VITE_QUIZZ_API_URL: ${{ vars.QUIZZ_API_URL }}
 
         # Cette étape va créer un "output" qui contient l'url du projet sur github pages
         # Ce qui permet d'être récupéré par le job de déploiement
