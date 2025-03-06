@@ -2,63 +2,27 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 
 import "./Game.css";
-import {
-  type Answer as AnswerType,
-  type Difficulty as DifficultyType,
-  type Quizz,
-} from "../modules/quizz/model";
+import { type Quizz } from "../modules/quizz/model";
 import Answer from "../modules/quizz/components/Answer";
 import useQuizz from "../modules/quizz/useQuizz";
 import Difficulty from "../modules/quizz/components/Difficulty";
-import { shuffleArray } from "../lib/random";
 import EndQuizz from "../modules/quizz/components/EndQuizz";
+import { useDependencies } from "../components/DependenciesProvider";
 
 export default function Game() {
+  const { quizzDatasource } = useDependencies();
   const [quizz, updateQuizz] = useState<Quizz>();
-
-  const difficultyMap: Record<string, DifficultyType> = {
-    facile: "easy",
-    normal: "medium",
-    difficile: "hard",
-  };
 
   useEffect(() => {
     const loadQuizz = () => {
-      fetch(
-        "https://quizzapi.jomoreschi.fr/api/v1/quiz?limit=10&category=jeux_videos"
-      )
-        .then((res) => res.json())
-        .then(
-          (data: {
-            quizzes: Array<{
-              _id: string;
-              answer: string;
-              badAnswers: Array<string>;
-              category: string;
-              difficulty: string;
-              question: string;
-            }>;
-          }) => {
-            updateQuizz({
-              questions: data.quizzes.map((q) => ({
-                id: q._id,
-                text: q.question,
-                answers: shuffleArray(
-                  [q.answer, ...q.badAnswers].map<AnswerType>((a, index) => ({
-                    id: (index + 1).toString(),
-                    text: a,
-                    isCorrect: index === 0,
-                  }))
-                ),
-                difficulty: difficultyMap[q.difficulty],
-              })),
-            });
-          }
-        );
+      quizzDatasource
+        .fetch()
+        .then((data) => updateQuizz(data))
+        .catch((error) => console.error(error));
     };
 
     loadQuizz();
-  }, []);
+  }, [quizzDatasource]);
 
   if (!quizz) return <div>Chargement du Quizz...</div>;
 
