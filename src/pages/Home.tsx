@@ -8,7 +8,7 @@ function Home() {
       <h2 className="font-bold">Historique des parties</h2>
 
       <div className="overflow-x-auto mb-14">
-        {/* Le contenu est un exemple, les datas doivent venir de l'API qui de classement */}
+        {/* Le contenu est un exemple */}
         <table className="table">
           {/* head */}
           <thead>
