@@ -1,6 +1,24 @@
 import { NavLink } from "react-router";
 import "./Game.css";
 
+type Difficulty = "easy" | "medium" | "hard";
+
+type Question = {
+  text: string;
+  difficulty: Difficulty;
+  answers: Answer[];
+};
+
+type Answer = {
+  text: string;
+  isCorrect: boolean;
+};
+
+type Quizz = {
+  questions: Question[];
+  goodAnswersCount: number;
+};
+
 export default function Game() {
   return (
     <>
