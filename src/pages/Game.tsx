@@ -14,12 +14,24 @@ import EndQuizz from "../modules/quizz/components/EndQuizz";
 import { QuestionCounter } from "../modules/quizz/components/QuestionCounter";
 
 export default function Game() {
+  // useDependencies est un contexte qui contient mes dépendances externes
+  // en relation avec l'infrastructure, comme par exemple aller chercher les données vers l'extérieur
+  // Par exemple : localStorage, api externe, fausses données pour les démos, etc.
   const { quizzDatasource } = useDependencies();
+  // contexte qui contient le pseudo du joueur
   const { nickName } = useNickname();
+  // Uniquement là pour permettre de faire le rendu du composant enfant de Quizz quand ça a bien chargé
   const [quizz, updateQuizz] = useState<Quizz>();
+  // seed me permet juste de pouvoir relancer une partie
+  // et forcer la réinitialisation des composants enfant
+  // Sinon j'aurais eu encore les données de l'ancien Quizz dans le composant enfant
   const [seed, updateSeed] = useState(0);
 
+  // Use effect permet de synchroniser un composant React par
+  // rapport à un système externe à REACT
   useEffect(() => {
+    // QuizzDatasource est la librairie permettant d'aller récupérer
+    // les données de quizz à l'extérieur de notre application REACT
     quizzDatasource
       .fetch()
       .then((quizz) => updateQuizz(quizz))
@@ -35,6 +47,7 @@ export default function Game() {
         </NavLink>
       </div>
     );
+
   if (!quizz) return <div>Chargement du Quizz...</div>;
 
   return (
@@ -43,6 +56,9 @@ export default function Game() {
         {nickName}, tu vas tout déchirer 🔥
       </div>
       <Quizz
+        // Ici key me permet de rafraîchir le composant Quizz lorsque le seed change
+        // Car quand on rejoue une partie, j'ai besoin de réinitialiser le composant
+        // Sinon j'aurais encore eu les données de l'ancien Quizz
         key={seed}
         data={quizz}
         onReplay={() => updateSeed(Math.random())}
@@ -52,8 +68,16 @@ export default function Game() {
 }
 
 function Quizz({ data, onReplay }: { data: Quizz; onReplay: () => void }) {
+  // useDependencies est un contexte qui contient mes dépendances externes
+  // en relation avec l'infrastructure, comme par exemple aller chercher les données vers l'extérieur
+  // Par exemple : localStorage, api externe, fausses données pour les démos, etc.
   const { gameHistoryDatasource } = useDependencies();
   const { nickName } = useNickname();
+  // useQuizz est un hook personnalisé qui
+  // me permet d'extraire la logique de mon Quizz du composant
+  //
+  // Plusieurs bénéfices : fichier de composant allégé, réutilisation du useQuizz dans d'autres composants,
+  // isolation de la logique qui être vérifié avec des tests unitaires, etc.
   const {
     questionNumber,
     question,
@@ -69,6 +93,8 @@ function Quizz({ data, onReplay }: { data: Quizz; onReplay: () => void }) {
   const showNextQuestionBtn = questionAnswered && !isLastQuestion;
   const isEndOfQuizz = questionAnswered && isLastQuestion;
 
+  // Ajout d'une partie dans l'historique des parties
+  // Quand le quizz est fini
   if (isEndOfQuizz)
     gameHistoryDatasource.add({
       player: nickName,

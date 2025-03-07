@@ -1,5 +1,5 @@
 import { Quizz } from "../model";
 
-export type QuizzDataSource = {
+export interface QuizzDataSource {
   fetch(): Promise<Quizz>;
-};
+}

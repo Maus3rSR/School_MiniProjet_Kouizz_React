@@ -1,8 +1,13 @@
+# Nom du workflow
 name: Deploy to GitHub Pages
 
+# La configuration qui permettra d'indiquer quand lancer ce workflow
 on:
+  # à chaque fois que tu pousses du code
   push:
+    # Sur une des branches suivantes : solution
     branches: [solution]
+  # ou, lors d'un déclenchement manuel
   workflow_dispatch:
 
 jobs:

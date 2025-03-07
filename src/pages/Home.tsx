@@ -64,6 +64,9 @@ function Home() {
         className="join"
         onSubmit={(e) => {
           e.preventDefault();
+          // Ici, on utilise la méthode "navigate" de React router
+          // Pour pouvoir faire une redirection vers une autre page
+          // avec l'utilisation de JavaScript
           navigate("/game");
         }}
       >
